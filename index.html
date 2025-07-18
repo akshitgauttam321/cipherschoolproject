@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Habit Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .auth-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .main-app {
+            display: none;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        }
+
+        .habit-list {
+            margin-top: 20px;
+        }
+
+        .habit-item {
+            background: #f7fafc;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .habit-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .habit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .habit-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .habit-time {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .habit-streak {
+            color: #38a169;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .habit-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .calendar-view {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f7fafc;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-day:hover {
+            background: #e2e8f0;
+        }
+
+        .calendar-day.today {
+            background: #667eea;
+            color: white;
+        }
+
+        .calendar-day.completed {
+            background: #48bb78;
+            color: white;
+        }
+
+        .ai-insights {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+
+        .ai-response {
+            background: #f0f4f8;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .calendar-grid {
+                grid-template-columns: repeat(7, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Daily Habit Tracker</h1>
+            <p>Build better habits with AI-powered insights</p>
+        </div>
+
+        <!-- Authentication Section -->
+        <div class="auth-section" id="authSection">
+            <h2>Welcome Back!</h2>
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter your username">
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password">
+            </div>
+            <button class="btn" onclick="login()">Login</button>
+            <button class="btn btn-secondary" onclick="showRegister()">Register</button>
+            
+            <!-- Registration Form (Hidden by default) -->
+            <div id="registerForm" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
+                <h3>Create New Account</h3>
+                <div class="input-group">
+                    <label for="newUsername">Username</label>
+                    <input type="text" id="newUsername" placeholder="Choose a username">
+                </div>
+                <div class="input-group">
+                    <label for="newPassword">Password</label>
+                    <input type="password" id="newPassword" placeholder="Choose a password">
+                </div>
+                <div class="input-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm your password">
+                </div>
+                <button class="btn btn-secondary" onclick="register()">Create Account</button>
+                <button class="btn" onclick="showLogin()">Back to Login</button>
+            </div>
+        </div>
+
+        <!-- Main Application -->
+        <div class="main-app" id="mainApp">
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalHabits">0</div>
+                    <div class="stat-label">Total Habits</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="completedToday">0</div>
+                    <div class="stat-label">Completed Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="longestStreak">0</div>
+                    <div class="stat-label">Longest Streak</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="completionRate">0%</div>
+                    <div class="stat-label">Completion Rate</div>
+                </div>
+            </div>
+
+            <!-- Dashboard -->
+            <div class="dashboard">
+                <!-- Add Habit -->
+                <div class="card">
+                    <h2>➕ Add New Habit</h2>
+                    <div class="input-group">
+                        <label for="habitName">Habit Name</label>
+                        <input type="text" id="habitName" placeholder="e.g., Drink 8 glasses of water">
+                    </div>
+                    <div class="input-group">
+                        <label for="habitTime">Time of Day</label>
+                        <select id="habitTime">
+                            <option value="morning">Morning</option>
+                            <option value="afternoon">Afternoon</option>
+                            <option value="evening">Evening</option>
+                            <option value="night">Night</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="addHabit()">Add Habit</button>
+                    <button class="btn btn-secondary" onclick="getAIHabitSuggestions()">Get AI Suggestions</button>
+                </div>
+
+                <!-- Habits List -->
+                <div class="card">
+                    <h2>📋 My Habits</h2>
+                    <div class="habit-list" id="habitsList">
+                        <!-- Habits will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar View -->
+            <div class="calendar-view">
+                <div class="calendar-header">
+                    <h2>📅 Calendar View</h2>
+                    <div>
+                        <button class="btn" onclick="previousMonth()">←</button>
+                        <span id="currentMonth">January 2025</span>
+                        <button class="btn" onclick="nextMonth()">→</button>
+                    </div>
+                </div>
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar days will be populated here -->
+                </div>
+                <div>
+                    <strong>Selected Date:</strong> <span id="selectedDate">Today</span>
+                    <div id="selectedDateHabits"></div>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="ai-insights">
+                <h2>🤖 AI Insights & Recommendations</h2>
+                <button class="btn" onclick="getAIInsights()">Get Personalized Insights</button>
+                <button class="btn btn-secondary" onclick="getMotivationalQuote()">Get Motivation</button>
+                <div class="loading" id="aiLoading">
+                    <div class="spinner"></div>
+                    <p>AI is analyzing your habits...</p>
+                </div>
+                <div class="ai-response" id="aiResponse" style="display: none;">
+                    <!-- AI responses will appear here -->
+                </div>
+            </div>
+
+            <!-- Logout -->
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-danger" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let habits = [];
+        let dailyLogs = {};
+        let currentDate = new Date();
+        let selectedDate = new Date();
+        let users = {}; // Store user accounts
+
+        // Initialize app
+        function init() {
+            loadAllUsers();
+            loadUserData();
+            updateCalendar();
+            updateStats();
+            renderHabits();
+        }
+
+        // Authentication functions
+        function showRegister() {
+            document.getElementById('registerForm').style.display = 'block';
+            document.querySelector('.auth-section h2').textContent = 'Create Account';
+        }
+
+        function showLogin() {
+            document.getElementById('registerForm').style.display = 'none';
+            document.querySelector('.auth-section h2').textContent = 'Welcome Back!';
+        }
+
+        function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            if (!username || !password) {
+                alert('Please enter both username and password');
+                return;
+            }
+
+            // Load users from storage
+            loadAllUsers();
+            
+            // Check if user exists and password matches
+            if (users[username] && users[username].password === password) {
+                currentUser = username;
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                
+                loadUserData();
+                updateStats();
+                renderHabits();
+                updateCalendar();
+                
+                // Clear form
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+            } else {
+                alert('Invalid username or password');
+            }
+        }
+
+        function register() {
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
+            
+            if (!username || !password || !confirmPassword) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters long');
+                return;
+            }
+
+            // Load existing users
+            loadAllUsers();
+            
+            // Check if username already exists
+            if (users[username]) {
+                alert('Username already exists. Please choose a different username.');
+                return;
+            }
+            
+            // Create new user
+            users[username] = {
+                password: password,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save users
+            saveAllUsers();
+            
+            // Clear form and show success
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            
+            alert('Account created successfully! You can now login.');
+            showLogin();
+        }
+
+        function logout() {
+            saveUserData();
+            currentUser = null;
+            habits = [];
+            dailyLogs = {};
+            
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            showLogin();
+        }
+
+        // User management functions
+        function saveAllUsers() {
+            const usersData = JSON.stringify(users);
+            document.cookie = `habitTracker_users=${usersData}; expires=Thu, 18 Dec 2025 12:00:00 UTC; path=/`;
+        }
+
+        function loadAllUsers() {
+            const cookies = document.cookie.split(';');
+            
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'habitTracker_users' && value) {
+                    try {
+                        users = JSON.parse(value);
+                    } catch (e) {
+                        console.error('Error loading users:', e);
+                        users = {};
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Data persistence functions
+        function saveUserData() {
+            if (!currentUser) return;
+            
+            const userData = {
+                habits: habits,
+                dailyLogs: dailyLogs
+            };
+            
+            const key = `habitTracker_${currentUser}`;
+            const data = JSON.stringify(userData);
+            document.cookie = `${key}=${data}; expires=Thu, 18 Dec 2025 12:00:00 UTC; path=/`;
+        }
+
+        function loadUserData() {
+            if (!currentUser) return;
+            
+            const key = `habitTracker_${currentUser}`;
+            const cookies = document.cookie.split(';');
+            
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === key && value) {
+                    try {
+                        const userData = JSON.parse(value);
+                        habits = userData.habits || [];
+                        dailyLogs = userData.dailyLogs || {};
+                    } catch (e) {
+                        console.error('Error loading user data:', e);
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Habit management functions
+        function addHabit() {
+            const name = document.getElementById('habitName').value.trim();
+            const time = document.getElementById('habitTime').value;
+            
+            if (!name) {
+                alert('Please enter a habit name');
+                return;
+            }
+            
+            const habit = {
+                id: Date.now(),
+                name: name,
+                time: time,
+                createdAt: new Date().toDateString(),
+                streak: 0,
+                longestStreak: 0,
+                completedDates: []
+            };
+            
+            habits.push(habit);
+            document.getElementById('habitName').value = '';
+            
+            saveUserData();
+            renderHabits();
+            updateStats();
+            updateCalendar();
+        }
+
+        function deleteHabit(habitId) {
+            if (confirm('Are you sure you want to delete this habit?')) {
+                habits = habits.filter(h => h.id !== habitId);
+                saveUserData();
+                renderHabits();
+                updateStats();
+                updateCalendar();
+            }
+        }
+
+        function toggleHabit(habitId, date = null) {
+            const habit = habits.find(h => h.id === habitId);
+            if (!habit) return;
+            
+            const targetDate = date || new Date().toDateString();
+            const isCompleted = habit.completedDates.includes(targetDate);
+            
+            if (isCompleted) {
+                habit.completedDates = habit.completedDates.filter(d => d !== targetDate);
+            } else {
+                habit.completedDates.push(targetDate);
+            }
+            
+            // Update streaks
+            updateHabitStreak(habit);
+            
+            saveUserData();
+            renderHabits();
+            updateStats();
+            updateCalendar();
+        }
+
+        function updateHabitStreak(habit) {
+            if (habit.completedDates.length === 0) {
+                habit.streak = 0;
+                return;
+            }
+            
+            const sortedDates = habit.completedDates
+                .map(d => new Date(d))
+                .sort((a, b) => b - a);
+            
+            let currentStreak = 0;
+            let maxStreak = 0;
+            let tempStreak = 0;
+            
+            // Calculate current streak
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            for (let i = 0; i < sortedDates.length; i++) {
+                const date = new Date(sortedDates[i]);
+                const expectedDate = new Date(today);
+                expectedDate.setDate(today.getDate() - i);
+                
+                if (date.toDateString() === expectedDate.toDateString()) {
+                    currentStreak++;
+                } else {
+                    break;
+                }
+            }
+            
+            // Calculate max streak
+            for (let i = 0; i < sortedDates.length; i++) {
+                if (i === 0) {
+                    tempStreak = 1;
+                } else {
+                    const prevDate = new Date(sortedDates[i - 1]);
+                    const currDate = new Date(sortedDates[i]);
+                    const dayDiff = Math.floor((prevDate - currDate) / (1000 * 60 * 60 * 24));
+                    
+                    if (dayDiff === 1) {
+                        tempStreak++;
+                    } else {
+                        maxStreak = Math.max(maxStreak, tempStreak);
+                        tempStreak = 1;
+                    }
+                }
+            }
+            maxStreak = Math.max(maxStreak, tempStreak);
+            
+            habit.streak = currentStreak;
+            habit.longestStreak = maxStreak;
+        }
+
+        function renderHabits() {
+            const container = document.getElementById('habitsList');
+            if (habits.length === 0) {
+                container.innerHTML = '<p>No habits added yet. Add your first habit!</p>';
+                return;
+            }
+            
+            container.innerHTML = habits.map(habit => {
+                const isCompletedToday = habit.completedDates.includes(new Date().toDateString());
+                const completedClass = isCompletedToday ? 'btn-secondary' : 'btn';
+                
+                return `
+                    <div class="habit-item">
+                        <div class="habit-header">
+                            <span class="habit-name">${habit.name}</span>
+                            <span class="habit-time">${habit.time}</span>
+                        </div>
+                        <div class="habit-streak">
+                            🔥 Current Streak: ${habit.streak} days | Best: ${habit.longestStreak} days
+                        </div>
+                        <div class="habit-actions">
+                            <button class="${completedClass}" onclick="toggleHabit(${habit.id})">
+                                ${isCompletedToday ? '✅ Completed' : '⭕ Mark Done'}
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteHabit(${habit.id})">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Calendar functions
+        function updateCalendar() {
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+            
+            document.getElementById('currentMonth').textContent = 
+                `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+            
+            // Add day headers
+            const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayHeaders.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.textContent = day;
+                dayHeader.style.fontWeight = 'bold';
+                dayHeader.style.textAlign = 'center';
+                dayHeader.style.padding = '10px';
+                dayHeader.style.backgroundColor = '#e2e8f0';
+                calendarGrid.appendChild(dayHeader);
+            });
+            
+            // Add calendar days
+            for (let i = 0; i < 42; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = date.getDate();
+                
+                // Check if it's today
+                const today = new Date();
+                if (date.toDateString() === today.toDateString()) {
+                    dayElement.classList.add('today');
+                }
+                
+                // Check if habits are completed on this day
+                const dateString = date.toDateString();
+                const completedHabits = habits.filter(habit => 
+                    habit.completedDates.includes(dateString)
+                ).length;
+                
+                if (completedHabits > 0) {
+                    dayElement.classList.add('completed');
+                    dayElement.title = `${completedHabits} habit(s) completed`;
+                }
+                
+                // Add click handler
+                dayElement.addEventListener('click', () => {
+                    selectedDate = new Date(date);
+                    showDateHabits(date);
+                });
+                
+                calendarGrid.appendChild(dayElement);
+            }
+        }
+
+        function showDateHabits(date) {
+            const dateString = date.toDateString();
+            document.getElementById('selectedDate').textContent = dateString;
+            
+            const habitsContainer = document.getElementById('selectedDateHabits');
+            habitsContainer.innerHTML = '';
+            
+            habits.forEach(habit => {
+                const isCompleted = habit.completedDates.includes(dateString);
+                const habitElement = document.createElement('div');
+                habitElement.style.margin = '10px 0';
+                habitElement.innerHTML = `
+                    <span>${habit.name}</span>
+                    <button class="btn ${isCompleted ? 'btn-secondary' : 'btn'}" 
+                            onclick="toggleHabit(${habit.id}, '${dateString}')"
+                            style="margin-left: 10px; padding: 5px 10px; font-size: 12px;">
+                        ${isCompleted ? '✅' : '⭕'}
+                    </button>
+                `;
+                habitsContainer.appendChild(habitElement);
+            });
+        }
+
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            updateCalendar();
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            updateCalendar();
+        }
+
+        // Statistics functions
+        function updateStats() {
+            const totalHabits = habits.length;
+            const today = new Date().toDateString();
+            const completedToday = habits.filter(habit => 
+                habit.completedDates.includes(today)
+            ).length;
+            
+            const longestStreak = habits.reduce((max, habit) => 
+                Math.max(max, habit.longestStreak), 0
+            );
+            
+            const totalPossibleCompletions = habits.reduce((total, habit) => {
+                const daysSinceCreation = Math.floor(
+                    (new Date() - new Date(habit.createdAt)) / (1000 * 60 * 60 * 24)
+                ) + 1;
+                return total + daysSinceCreation;
+            }, 0);
+            
+            const totalActualCompletions = habits.reduce((total, habit) => 
+                total + habit.completedDates.length, 0
+            );
+            
+            const completionRate = totalPossibleCompletions > 0 ? 
+                Math.round((totalActualCompletions / totalPossibleCompletions) * 100) : 0;
+            
+            document.getElementById('totalHabits').textContent = totalHabits;
+            document.getElementById('completedToday').textContent = completedToday;
+            document.getElementById('longestStreak').textContent = longestStreak;
+            document.getElementById('completionRate').textContent = completionRate + '%';
+        }
+
+        // AI Integration functions (Mock Implementation)
+        async function callGeminiAPI(prompt) {
+            const loading = document.getElementById('aiLoading');
+            const response = document.getElementById('aiResponse');
+            
+            loading.style.display = 'block';
+            response.style.display = 'none';
+            
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            try {
+                let aiText = '';
+                
+                // Mock AI responses based on prompt type
+                if (prompt.includes('habit coach') || prompt.includes('analyze these habits')) {
+                    aiText = generateHabitInsights();
+                } else if (prompt.includes('habit formation expert') || prompt.includes('suggest')) {
+                    aiText = generateHabitSuggestions();
+                } else if (prompt.includes('motivational message')) {
+                    aiText = generateMotivationalMessage();
+                } else {
+                    aiText = 'I can help you with habit tracking insights, suggestions, and motivation. Please try one of the specific AI features!';
+                }
+                
+                response.innerHTML = `<h3>🤖 AI Response:</h3><p>${aiText.replace(/\n/g, '<br>')}</p>`;
+                response.style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error generating AI response:', error);
+                response.innerHTML = `<h3>Error:</h3><p>Sorry, I couldn't process your request. Please try again later.</p>`;
+                response.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function generateHabitInsights() {
+            const totalHabits = habits.length;
+            const today = new Date().toDateString();
+            const completedToday = habits.filter(habit => habit.completedDates.includes(today)).length;
+            const completionRate = totalHabits > 0 ? Math.round((completedToday / totalHabits) * 100) : 0;
+            
+            const insights = [
+                `📊 **Performance Analysis:**\nYou have ${totalHabits} active habits and completed ${completedToday} today (${completionRate}% completion rate).`,
+                
+                `🎯 **Recommendations:**\n• Focus on consistency over perfection - even 1% daily improvement compounds over time\n• Consider habit stacking - link new habits to existing ones\n• Track your energy levels to optimize timing`,
+                
+                `⏰ **Timing Optimization:**\n• Morning habits: Best for willpower-dependent activities\n• Evening habits: Great for reflection and relaxation\n• Link habits to daily anchors (meals, commute, bedtime)`,
+                
+                `🔥 **Motivational Insights:**\n• Small wins create momentum for bigger changes\n• Focus on building systems, not just achieving goals\n• Celebrate consistency streaks, no matter how small`
+            ];
+            
+            return insights.join('\n\n');
+        }
+
+        function generateHabitSuggestions() {
+            const suggestions = [
+                '💧 **Drink Water First Thing** (Morning)\nStart your day with a glass of water to boost metabolism and hydration after sleep.',
+                
+                '📱 **Digital Detox Hour** (Evening)\nSpend 1 hour before bed without screens to improve sleep quality and mental clarity.',
+                
+                '🚶 **10-Minute Walk** (Any time)\nA short walk can boost creativity, reduce stress, and improve cardiovascular health.',
+                
+                '📝 **3 Things Gratitude** (Night)\nWrite down three things you\'re grateful for to improve mental well-being and sleep quality.',
+                
+                '🧘 **5-Minute Meditation** (Morning)\nStart with just 5 minutes to reduce stress, improve focus, and build emotional resilience.',
+                
+                '📚 **Read 10 Pages** (Evening)\nReading before bed can improve knowledge, reduce stress, and enhance sleep quality.'
+            ];
+            
+            return suggestions.join('\n\n');
+        }
+
+        function generateMotivationalMessage() {
+            const totalHabits = habits.length;
+            const completedToday = habits.filter(h => h.completedDates.includes(new Date().toDateString())).length;
+            const longestStreak = habits.reduce((max, habit) => Math.max(max, habit.longestStreak), 0);
+            
+            const messages = [
+                `🌟 You're building something amazing! With ${totalHabits} habits tracked and ${completedToday} completed today, you're creating positive change one day at a time.`,
+                
+                `🔥 Your longest streak of ${longestStreak} days shows you have the power to build lasting habits. Every small step counts!`,
+                
+                `💪 Progress isn't always linear, but persistence is key. You're ${completedToday}/${totalHabits} habits strong today - that's dedication!`,
+                
+                `🎯 Remember: you don't have to be perfect, you just have to be consistent. Each day is a new opportunity to grow.`,
+                
+                `⭐ The compound effect of your daily habits will create extraordinary results over time. Keep going!`
+            ];
+            
+            return messages[Math.floor(Math.random() * messages.length)];
+        }
+
+        async function getAIInsights() {
+            const habitsList = habits.map(habit => ({
+                name: habit.name,
+                time: habit.time,
+                streak: habit.streak,
+                completedDates: habit.completedDates.length
+            }));
+            
+            const prompt = `As a habit coach, analyze these habits and provide personalized insights and recommendations:
+
+            Current Habits: ${JSON.stringify(habitsList)}
+            
+            Please provide:
+            1. Analysis of current performance
+            2. Specific recommendations for improvement
+            3. Suggestions for habit stacking or timing optimization
+            4. Motivational insights based on progress
+            
+            Keep the response concise and actionable.`;
+            
+            await callGeminiAPI(prompt);
+        }
+
+        async function getAIHabitSuggestions() {
+            const prompt = `As a habit formation expert, suggest 5 evidence-based daily habits that can significantly improve someone's life. Focus on habits that are:
+            
+            1. Easy to start and maintain
+            2. Have compound benefits over time
+            3. Can be done at different times of day
+            4. Are backed by research
+            
+            For each habit, provide:
+            - The habit name
+            - Best time to do it (morning/afternoon/evening/night)
+            - Brief explanation of benefits
+            
+            Format as a simple list.`;
+            
+            await callGeminiAPI(prompt);
+        }
+
+        async function getMotivationalQuote() {
+            const userStats = {
+                totalHabits: habits.length,
+                completedToday: habits.filter(h => h.completedDates.includes(new Date().toDateString())).length,
+                longestStreak: habits.reduce((max, habit) => Math.max(max, habit.longestStreak), 0)
+            };
+            
+            const prompt = `Create a personalized motivational message for someone with these habit tracking stats:
+            - Total habits: ${userStats.totalHabits}
+            - Completed today: ${userStats.completedToday}
+            - Longest streak: ${userStats.longestStreak}
+            
+            Make it encouraging, specific to their progress, and inspiring for continued growth. Keep it under 100 words.`;
+            
+            await callGeminiAPI(prompt);
+        }
+
+        // Initialize the app when page loads
+        window.addEventListener('load', () => {
+            // Set initial selected date to today
+            showDateHabits(new Date());
+        });
+    </script>
+</body>
+</html>
